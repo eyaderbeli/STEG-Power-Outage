@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: #f4f5f7;
+            font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+            background-color: #1e3a5f;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            background-color: #fff;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.2);
+        }
+        .quick-actions .btn {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .welcome-section {
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+        .welcome-section h1 {
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+        .welcome-section p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        .action-cards {
+            margin-top: 50px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .table th {
+            background-color: #1e3a5f;
+            color: #fff;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            padding: 0.5em;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Dashboard</a>
+            <div>
+                <a href="{{ url_for('update_location') }}" class="btn btn-outline-light btn-sm">Update Location</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Section -->
+    <div class="container welcome-section">
+        <h1>Welcome, {{ user.username }}</h1>
+        <p>Your role: <strong>{{ user.role }}</strong></p>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="container action-cards">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                    <h5>View Your Reports</h5>
+                    <p class="text-muted">Track all your submitted outage and service reports.</p>
+                    <a href="#reports" class="btn btn-primary">Go to Reports</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <i class="fas fa-map-marker-alt fa-3x text-success mb-3"></i>
+                    <h5>Update Location</h5>
+                    <p class="text-muted">Keep your location updated for accurate notifications.</p>
+                    <a href="{{ url_for('update_location') }}" class="btn btn-success">Update Location</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <i class="fas fa-plus-circle fa-3x text-danger mb-3"></i>
+                    <h5>Report an Issue</h5>
+                    <p class="text-muted">Submit a new outage or service-related issue.</p>
+                    <a href="{{ url_for('report') }}" class="btn btn-danger">New Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Outage Reports Section -->
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header text-white bg-primary">
+                <h3>Your Reports</h3>
+            </div>
+            <div class="card-body">
+                {% if reports %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td>{{ report.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ report.category }}</td>
+                            <td>{{ report.outage_report }}</td>
+                            <td>{{ report.location }}</td>
+                            <td>
+                                {% if report.restoration_confirmed %}
+                                <span class="badge bg-success">Restored</span>
+                                {% else %}
+                                <form method="POST" action="{{ url_for('confirm_restoration', report_id=report.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-warning btn-sm">Confirm Restoration</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No reports found. <a href="{{ url_for('report') }}">Report an outage now.</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
